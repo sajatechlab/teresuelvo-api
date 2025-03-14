@@ -29,7 +29,7 @@ import { NegotiationsModule } from './negotiations/negotiations.module'
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') === 'development',
         migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-        migrationsTableName: 'migrations1',
+        migrationsTableName: 'migrations',
         migrationsRun:
           configService.get<string>('NODE_ENV') === 'development'
             ? false

@@ -25,11 +25,15 @@ import { NegotiationsModule } from './negotiations/negotiations.module'
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
+        autoLoadEntities: true,
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') === 'development',
         migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
         migrationsTableName: 'migrations',
-        migrationsRun: true,
+        migrationsRun:
+          configService.get<string>('NODE_ENV') === 'development'
+            ? false
+            : true,
       }),
       inject: [ConfigService],
     }),

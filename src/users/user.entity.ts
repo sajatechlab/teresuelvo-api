@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm'
 import { Exclude } from 'class-transformer'
 
@@ -45,4 +46,11 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date
+
+  @DeleteDateColumn({
+    name: 'deleted_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
+  deletedAt: Date
 }

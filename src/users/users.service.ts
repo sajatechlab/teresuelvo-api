@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
@@ -8,6 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto'
 import { DebtsRepository } from '@/debts/debts.repository'
 import { NegotiationsRepository } from '@/negotiations/negotiations.repository'
 import { DashboardMetrics } from './interfaces/dashboard-metrics.interface'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UsersService {
@@ -51,5 +52,25 @@ export class UsersService {
 
   async getUsers() {
     return this.usersRepository.findAll()
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.usersRepository.findOne({ id })
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    await this.usersRepository.update(id, updateUserDto)
+    return this.usersRepository.findOne({ id } )
+  }
+
+  async remove(id: string) {
+    const user = await this.usersRepository.findOne({ id })
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    await this.usersRepository.softDelete(id)
+    return { message: 'User deleted successfully' }
   }
 }

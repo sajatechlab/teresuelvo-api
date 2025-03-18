@@ -74,7 +74,7 @@ export class NegotiationsRepository {
         .innerJoin('negotiation.debt', 'debt')
         .where('debt.userId = :userId', { userId })
         .andWhere('negotiation.status IN (:...statuses)', {
-          statuses: ['PENDING_REVISION', 'IN_NEGOTIATION'],
+          statuses: ['PENDING_REVIEW', 'IN_NEGOTIATION'],
         })
         .getCount(),
 
@@ -112,7 +112,7 @@ export class NegotiationsRepository {
       .innerJoin('negotiation.debt', 'debt')
       .where('debt.userId = :userId', { userId })
       .select([
-        // In Negotiation metrics (PENDING_REVISION or IN_NEGOTIATION)
+        // In Negotiation metrics (PENDING_REVIEW or IN_NEGOTIATION)
         'COUNT(CASE WHEN negotiation.status IN (:...inNegotiationStatuses) THEN 1 END)::int AS "inNegotiationCount"',
         'COALESCE(SUM(CASE WHEN negotiation.status IN (:...inNegotiationStatuses) THEN debt.amount  END), 0)::decimal AS "inNegotiationTotal"',
 
@@ -126,7 +126,7 @@ export class NegotiationsRepository {
         'COALESCE(SUM(CASE WHEN negotiation.status = :pendingPaymentStatus THEN negotiation.amountNegotiated END), 0)::decimal AS "pendingPaymentTotal"',
       ])
       .setParameters({
-        inNegotiationStatuses: ['PENDING_REVISION', 'IN_NEGOTIATION'],
+        inNegotiationStatuses: ['PENDING_REVIEW', 'IN_NEGOTIATION'],
         paidStatus: 'PAID',
         pendingPaymentStatus: 'PENDING_PAYMENT',
       })

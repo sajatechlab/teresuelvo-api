@@ -19,7 +19,7 @@ export class Negotiation {
   @Column({
     type: 'enum',
     enum: NegotiationStatus,
-    default: NegotiationStatus.PENDING_REVISION,
+    default: NegotiationStatus.PENDING_REVIEW,
   })
   status: NegotiationStatus
 

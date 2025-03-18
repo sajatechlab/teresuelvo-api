@@ -48,4 +48,8 @@ export class UsersService {
 
     return metrics
   }
+
+  async getUsers() {
+    return this.usersRepository.findAll()
+  }
 }

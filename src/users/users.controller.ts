@@ -19,4 +19,10 @@ export class UsersController {
   async getDashboardMetrics(@GetUser() user: User) {
     return this.usersService.getDashboardMetrics(user.id)
   }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getUsers() {
+    return this.usersService.getUsers()
+  }
 }

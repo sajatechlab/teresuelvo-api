@@ -22,6 +22,10 @@ export class UsersRepository {
     return this.repository.findOne({ where: query })
   }
 
+  findAll() {
+    return this.repository.find()
+  }
+
   findByEmail(email: string) {
     return this.findOne({ email })
   }

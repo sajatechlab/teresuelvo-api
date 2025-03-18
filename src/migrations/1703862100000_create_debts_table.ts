@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 export class CreateDebtsTable1703862100000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TYPE "debt_type_enum" AS ENUM ('CreditCard', 'PersonalLoan', 'Company', 'Other');
+      CREATE TYPE "debt_type_enum" AS ENUM ('CREDIT_CARD', 'PERSONAL_LOAN', 'COMPANY', 'OTHER');
       CREATE TYPE "debt_entity_enum" AS ENUM (
         'BANCOLOMBIA',
         'BANCO_PICHINCHA',
@@ -32,8 +32,8 @@ export class CreateDebtsTable1703862100000 implements MigrationInterface {
         "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT now(),
         "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT now(),
         CONSTRAINT "chk_other_type" CHECK (
-          ("type" = 'Other' AND "otherType" IS NOT NULL) OR
-          ("type" != 'Other' AND "otherType" IS NULL)
+          ("type" = 'OTHER' AND "otherType" IS NOT NULL) OR
+          ("type" != 'OTHER' AND "otherType" IS NULL)
         )
       );
 

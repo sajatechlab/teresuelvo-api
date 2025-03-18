@@ -52,7 +52,7 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })
-    return { message: 'Successfully logged in' }
+    return { message: 'Successfully logged in', isAdmin: req.user.isAdmin }
   }
 
   @Post('logout')

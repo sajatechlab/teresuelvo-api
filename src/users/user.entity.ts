@@ -37,6 +37,9 @@ export class User {
   @Exclude()
   password: string
 
+  @Column({ type: 'boolean', default: false, name: 'isAdmin' })
+  isAdmin: boolean
+
   @CreateDateColumn()
   createdAt: Date
 

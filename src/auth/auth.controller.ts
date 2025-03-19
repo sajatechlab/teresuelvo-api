@@ -31,8 +31,8 @@ export class AuthController {
     const { access_token } = await this.authService.signup(createUserDto)
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      //secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })
     return { message: 'Successfully signed up' }
@@ -48,8 +48,8 @@ export class AuthController {
     const { access_token } = await this.authService.login(req.user)
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      //secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })
     return { message: 'Successfully logged in', isAdmin: req.user.isAdmin }
@@ -57,7 +57,11 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('jwt')
+    response.clearCookie('jwt', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    })
     return { message: 'Successfully logged out' }
   }
 

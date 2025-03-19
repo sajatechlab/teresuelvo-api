@@ -24,6 +24,24 @@ export class UsersController {
     return this.usersService.create(createUserDto)
   }
 
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getUsers() {
+    return this.usersService.getUsers()
+  }
+
+  @Get('dashboard-metrics')
+  @UseGuards(JwtAuthGuard)
+  async getDashboardMetrics(@GetUser() user: User) {
+    return this.usersService.getDashboardMetrics(user.id)
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOneById(id)
+  }
+
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
@@ -34,17 +52,5 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.usersService.remove(id)
-  }
-
-  @Get('dashboard-metrics')
-  @UseGuards(JwtAuthGuard)
-  async getDashboardMetrics(@GetUser() user: User) {
-    return this.usersService.getDashboardMetrics(user.id)
-  }
-
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  async getUsers() {
-    return this.usersService.getUsers()
   }
 }

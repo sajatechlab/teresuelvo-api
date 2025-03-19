@@ -64,7 +64,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   getProfile(@GetUser() user: User) {
-    return user
+    return {
+      id: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    }
   }
 
   @Public()

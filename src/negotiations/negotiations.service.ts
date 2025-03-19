@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { NegotiationsRepository } from './negotiations.repository'
-import { NegotiationStatus } from './enum/status.enum'
+import { UpdateNegotiationDto } from './dto/update-negotiation.dto'
 @Injectable()
 export class NegotiationsService {
   constructor(private negotiationsRepository: NegotiationsRepository) {}
@@ -21,7 +21,7 @@ export class NegotiationsService {
     return this.negotiationsRepository.getNegotiationPageMetrics(userId)
   }
 
-  updateStatus(id: string, status: NegotiationStatus) {
-    return this.negotiationsRepository.updateStatus(id, status)
+  updateStatus(id: string, updatedNegotiationDto: UpdateNegotiationDto) {
+    return this.negotiationsRepository.updateStatus(id, updatedNegotiationDto)
   }
 }

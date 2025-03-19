@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Negotiation } from './negotiation.entity'
-import { NegotiationStatus } from './enum/status.enum'
+import { UpdateNegotiationDto } from './dto/update-negotiation.dto'
 @Injectable()
 export class NegotiationsRepository {
   constructor(
@@ -144,7 +144,18 @@ export class NegotiationsRepository {
     }
   }
 
-  updateStatus(id: string, status: NegotiationStatus) {
-    return this.repository.update(id, { status })
+  async updateStatus(id: string, updatedNegotiationDto: UpdateNegotiationDto) {
+    const updateData: Partial<UpdateNegotiationDto> = {}
+
+    if (updatedNegotiationDto.status) {
+      updateData.status = updatedNegotiationDto.status
+    }
+
+    if (updatedNegotiationDto.amountNegotiated) {
+      updateData.amountNegotiated = updatedNegotiationDto.amountNegotiated
+    }
+
+    await this.repository.update(id, updateData)
+    return this.findOne({ id })
   }
 }

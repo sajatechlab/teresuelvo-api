@@ -24,12 +24,12 @@ export class NegotiationsController {
     return this.negotiationsService.create(debtId)
   }
 
-  @Patch(':id/status')
+  @Patch(':id')
   updateStatus(
     @Param('id') id: string,
-    @Body('status') status: NegotiationStatus
+    @Body() updatedNegotiationDto: UpdateNegotiationDto
   ) {
-    return this.negotiationsService.updateStatus(id, status)
+    return this.negotiationsService.updateStatus(id, updatedNegotiationDto)
   }
 
   @Get()

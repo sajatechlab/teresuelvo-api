@@ -61,7 +61,7 @@ export class UsersService {
     }
 
     await this.usersRepository.update(id, updateUserDto)
-    return this.usersRepository.findOne({ id } )
+    return this.usersRepository.findOne({ id })
   }
 
   async remove(id: string) {
@@ -72,5 +72,14 @@ export class UsersService {
 
     await this.usersRepository.softDelete(id)
     return { message: 'User deleted successfully' }
+  }
+
+  async findOneById(id: string) {
+    const user = await this.usersRepository.findOneById(id)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+    console.log('user', user)
+    return user
   }
 }

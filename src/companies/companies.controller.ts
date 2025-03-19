@@ -20,6 +20,7 @@ import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
+  @Public()
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@GetUser() user: User, @Body() createCompanyDto: CreateCompanyDto) {

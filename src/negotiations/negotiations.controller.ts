@@ -32,9 +32,14 @@ export class NegotiationsController {
     return this.negotiationsService.updateStatus(id, updatedNegotiationDto)
   }
 
-  @Get()
-  findAll(@GetUser() user: User) {
-    return this.negotiationsService.findAll(user.id)
+  @Get('by-user')
+  findAllByUser(@GetUser() user: User) {
+    return this.negotiationsService.findAllByUser(user.id)
+  }
+
+  @Get('by-admin')
+  findAllByAdmin() {
+    return this.negotiationsService.findAllByAdmin()
   }
 
   @Get('metrics')

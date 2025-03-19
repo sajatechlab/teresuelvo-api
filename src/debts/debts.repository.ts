@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Debt } from './debt.entity'
 import { UpdateDebtDto } from './dto/update-debt.dto'
+import { Not, IsNull } from 'typeorm'
 
 @Injectable()
 export class DebtsRepository {
@@ -25,6 +26,27 @@ export class DebtsRepository {
 
   findByUser(userId: string) {
     return this.repository.find({ where: { user: { id: userId } } })
+  }
+
+  findAllByAdmin() {
+    return this.repository
+      .createQueryBuilder('debt')
+      .leftJoinAndSelect('debt.user', 'user')
+      .leftJoin('negotiations', 'negotiation', 'negotiation.debtId = debt.id')
+      .select([
+        'debt',
+        'user',
+        'CASE WHEN negotiation.id IS NOT NULL THEN true ELSE false END as "isNegotiated"',
+      ])
+      .where('user.id IS NOT NULL')
+      .orderBy('debt.createdAt', 'DESC')
+      .getRawAndEntities()
+      .then(({ entities, raw }) => {
+        return entities.map((debt, index) => ({
+          ...debt,
+          isNegotiated: raw[index].isNegotiated,
+        }))
+      })
   }
 
   findAllNotNegotiated(userId: string) {

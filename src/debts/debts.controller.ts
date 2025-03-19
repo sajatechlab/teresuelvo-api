@@ -30,9 +30,14 @@ export class DebtsController {
   //   return this.debtsService.findOne(id)
   // }
 
-  @Get()
+  @Get('by-user')
   findAll(@GetUser() user: User) {
     return this.debtsService.findAllByUser(user.id)
+  }
+
+  @Get('by-admin')
+  findAllByAdmin() {
+    return this.debtsService.findAllByAdmin()
   }
 
   @Get('not-negotiated')

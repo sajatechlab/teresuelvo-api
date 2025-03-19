@@ -98,11 +98,22 @@ export class NegotiationsRepository {
     }
   }
 
-  async findAll(userId: string): Promise<Negotiation[]> {
+  async findAllByUser(userId: string): Promise<Negotiation[]> {
     return this.repository
       .createQueryBuilder('negotiation')
       .innerJoinAndSelect('negotiation.debt', 'debt')
       .where('debt.userId = :userId', { userId })
+      .getMany()
+  }
+
+  async findAllByAdmin(): Promise<Negotiation[]> {
+    return this.repository
+      .createQueryBuilder('negotiation')
+      .leftJoinAndSelect('negotiation.debt', 'debt')
+      .leftJoinAndSelect('debt.user', 'user')
+      .where('user.id IS NOT NULL')
+      .andWhere('debt.deletedAt IS NULL')
+      .orderBy('negotiation.createdAt', 'DESC')
       .getMany()
   }
 

@@ -13,8 +13,12 @@ export class NegotiationsService {
     return this.negotiationsRepository.findOne(id)
   }
 
-  findAll(userId: string) {
-    return this.negotiationsRepository.findAll(userId)
+  findAllByUser(userId: string) {
+    return this.negotiationsRepository.findAllByUser(userId)
+  }
+
+  findAllByAdmin() {
+    return this.negotiationsRepository.findAllByAdmin()
   }
 
   getNegotiationMetrics(userId: string) {

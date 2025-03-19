@@ -28,6 +28,10 @@ export class DebtsService {
     return this.debtsRepository.findByUser(userId)
   }
 
+  async findAllByAdmin() {
+    return this.debtsRepository.findAllByAdmin()
+  }
+
   async findAllNotNegotiated(userId: string) {
     return this.debtsRepository.findAllNotNegotiated(userId)
   }

@@ -9,13 +9,16 @@ import { DebtsRepository } from '@/debts/debts.repository'
 import { NegotiationsRepository } from '@/negotiations/negotiations.repository'
 import { DashboardMetrics } from './interfaces/dashboard-metrics.interface'
 import { UpdateUserDto } from './dto/update-user.dto'
-
+import { startOfMonth, subMonths } from 'date-fns'
+import { ContactUsDto } from './dto/contact-us.dto'
+import { ResendService } from '../utils/resend'
 @Injectable()
 export class UsersService {
   constructor(
     private usersRepository: UsersRepository,
     private debtsRepository: DebtsRepository,
-    private negotiationsRepository: NegotiationsRepository
+    private negotiationsRepository: NegotiationsRepository,
+    private resendService: ResendService
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -50,6 +53,23 @@ export class UsersService {
     return metrics
   }
 
+  async getAdminMetrics() {
+    const startOfCurrentMonth = startOfMonth(new Date())
+    const sixMonthsAgo = subMonths(new Date(), 6)
+
+    const [userMetrics, debtMetrics, negotiationMetrics] = await Promise.all([
+      this.usersRepository.getAdminMetrics(startOfCurrentMonth),
+      this.debtsRepository.getAdminMetrics(sixMonthsAgo),
+      this.negotiationsRepository.getAdminMetrics(sixMonthsAgo),
+    ])
+
+    return {
+      userMetrics,
+      debtMetrics,
+      negotiationMetrics,
+    }
+  }
+
   async getUsers() {
     return this.usersRepository.findAll()
   }
@@ -81,5 +101,9 @@ export class UsersService {
     }
     console.log('user', user)
     return user
+  }
+
+  async contactUs(contactUsDto: ContactUsDto) {
+    return this.resendService.sendContactEmails(contactUsDto)
   }
 }

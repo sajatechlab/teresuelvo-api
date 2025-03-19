@@ -8,9 +8,10 @@ import { DebtsRepository } from '@/debts/debts.repository'
 import { NegotiationsRepository } from '@/negotiations/negotiations.repository'
 import { Negotiation } from '@/negotiations/negotiation.entity'
 import { Debt } from '@/debts/debt.entity'
+import { ResendModule } from '@/utils/resend.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Debt, Negotiation])],
+  imports: [TypeOrmModule.forFeature([User, Debt, Negotiation]), ResendModule],
   providers: [
     UsersService,
     UsersRepository,

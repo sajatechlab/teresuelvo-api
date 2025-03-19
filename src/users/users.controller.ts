@@ -14,6 +14,8 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
 import { GetUser } from '@/common/decorators/user.decorator'
 import { User } from '../users/user.entity'
+import { ContactUsDto } from './dto/contact-us.dto'
+import { Public } from '@/auth/decorators/public.decorator'
 
 @Controller('users')
 export class UsersController {
@@ -22,6 +24,12 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto)
+  }
+
+  @Public()
+  @Post('contact-us')
+  contactUs(@Body() contactUsDto: ContactUsDto) {
+    return this.usersService.contactUs(contactUsDto)
   }
 
   @Get()
@@ -34,6 +42,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async getDashboardMetrics(@GetUser() user: User) {
     return this.usersService.getDashboardMetrics(user.id)
+  }
+
+  @Get('admin-metrics')
+  @UseGuards(JwtAuthGuard)
+  async getAdminMetrics() {
+    return this.usersService.getAdminMetrics()
   }
 
   @Get(':id')

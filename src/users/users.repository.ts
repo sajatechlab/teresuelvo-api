@@ -4,6 +4,9 @@ import { Repository, FindOptionsWhere } from 'typeorm'
 import { User } from './user.entity'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { subMonths } from 'date-fns'
+import { MoreThanOrEqual, Between } from 'typeorm'
+
 @Injectable()
 export class UsersRepository {
   constructor(
@@ -39,7 +42,26 @@ export class UsersRepository {
     return this.repository.update(id, data)
   }
 
-  softDelete(id: string) {
+  async softDelete(id: string) {
+    // First soft delete all negotiations related to the user's debts
+    await this.repository
+      .createQueryBuilder()
+      .update('negotiations')
+      .set({ deletedAt: new Date() })
+      .where('debtId IN (SELECT id FROM debts WHERE userId = :userId)', {
+        userId: id,
+      })
+      .execute()
+
+    // Then soft delete all debts related to the user
+    await this.repository
+      .createQueryBuilder()
+      .update('debts')
+      .set({ deletedAt: new Date() })
+      .where('userId = :userId', { userId: id })
+      .execute()
+
+    // Finally soft delete the user
     return this.repository.softDelete(id)
   }
 
@@ -121,6 +143,45 @@ export class UsersRepository {
     return {
       ...user,
       debts: Object.values(debts),
+    }
+  }
+
+  async getAdminMetrics(startOfCurrentMonth: Date) {
+    const [totalUsers, newUsersThisMonth, lastMonthUsers] = await Promise.all([
+      this.repository.count({
+        where: {
+          deletedAt: null,
+        },
+      }),
+      this.repository.count({
+        where: {
+          createdAt: MoreThanOrEqual(startOfCurrentMonth),
+          deletedAt: null,
+        },
+      }),
+      this.repository.count({
+        where: {
+          createdAt: Between(
+            subMonths(startOfCurrentMonth, 1),
+            startOfCurrentMonth
+          ),
+          deletedAt: null,
+        },
+      }),
+    ])
+
+    const growthRate =
+      lastMonthUsers > 0
+        ? ((newUsersThisMonth - lastMonthUsers) / lastMonthUsers) * 100
+        : newUsersThisMonth > 0 && lastMonthUsers === 0
+          ? 100
+          : 0
+
+    return {
+      totalUsers,
+      newUsersThisMonth,
+      activeUsers: totalUsers,
+      growthRate,
     }
   }
 }

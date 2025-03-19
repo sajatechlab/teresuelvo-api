@@ -114,9 +114,15 @@ export class DebtsRepository {
 
       this.repository
         .createQueryBuilder('debt')
-        .select(['debt.type as "type"', 'SUM(debt.amount) as count'])
-        .where('debt.userId = :userId', { userId })
+        .select([
+          'debt.type',
+          'debt."otherType"',
+          'COUNT(*) as count',
+          'SUM(debt.amount) as amount',
+        ])
+        .where('debt.deletedAt IS NULL')
         .groupBy('debt.type')
+        .addGroupBy('debt."otherType"')
         .getRawMany(),
 
       this.repository
@@ -135,5 +141,84 @@ export class DebtsRepository {
 
   async delete(id: string) {
     return this.repository.update({ id }, { deletedAt: new Date() })
+  }
+
+  async getAdminMetrics(sixMonthsAgo: Date) {
+    const [totalDebts, totalAmount, debtsByType, debtsByEntity, debtsOverTime] =
+      await Promise.all([
+        this.repository.count({
+          where: {
+            deletedAt: null,
+          },
+        }),
+        this.repository
+          .createQueryBuilder('debt')
+          .select('SUM(debt.amount)', 'total')
+          .where('debt.deletedAt IS NULL')
+          .getRawOne(),
+        this.repository
+          .createQueryBuilder('debt')
+          .select([
+            'debt.type as "type"',
+            'debt."otherType" as "otherType"',
+            'COUNT(*) as count',
+            'SUM(debt.amount) as amount',
+          ])
+          .where('debt.deletedAt IS NULL')
+          .groupBy('debt.type')
+          .addGroupBy('debt."otherType"')
+          .getRawMany(),
+        this.repository
+          .createQueryBuilder('debt')
+          .select([
+            'debt.entity as "entity"',
+            'debt."otherEntity" as "otherEntity"',
+            'COUNT(*) as count',
+            'SUM(debt.amount) as amount',
+          ])
+          .where('debt.deletedAt IS NULL')
+          .groupBy('debt.entity')
+          .addGroupBy('debt."otherEntity"')
+          .getRawMany(),
+        this.repository
+          .createQueryBuilder('debt')
+          .select([
+            "DATE_TRUNC('month', debt.createdAt) as date",
+            'COUNT(*) as count',
+            'SUM(debt.amount) as amount',
+          ])
+          .where('debt.createdAt >= :sixMonthsAgo', { sixMonthsAgo })
+          .andWhere('debt.deletedAt IS NULL')
+          .groupBy('date')
+          .orderBy('date', 'ASC')
+          .getRawMany(),
+      ])
+
+    const totalDebtAmount = Number(totalAmount?.total || 0)
+
+    return {
+      totalDebts,
+      totalDebtAmount,
+      averageDebtAmount: totalDebts > 0 ? totalDebtAmount / totalDebts : 0,
+      debtByType: debtsByType.map(({ type, otherType, count, amount }) => ({
+        type,
+        otherType,
+        count: Number(count),
+        amount: Number(amount),
+      })),
+      debtByEntity: debtsByEntity.map(
+        ({ entity, otherEntity, count, amount }) => ({
+          entity,
+          otherEntity,
+          count: Number(count),
+          amount: Number(amount),
+        })
+      ),
+      debtsOverTime: debtsOverTime.map(({ date, count, amount }) => ({
+        date: date.toISOString().slice(0, 7),
+        count: Number(count),
+        amount: Number(amount),
+      })),
+    }
   }
 }

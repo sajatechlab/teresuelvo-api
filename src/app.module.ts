@@ -14,7 +14,7 @@ import { User } from './users/user.entity'
 import { Debt } from './debts/debt.entity'
 import { Negotiation } from './negotiations/negotiation.entity'
 import { Company } from './companies/company.entity'
-import * as path from 'path'
+import { ResendModule } from '@/utils/resend.module'
 
 @Module({
   imports: [
@@ -42,6 +42,7 @@ import * as path from 'path'
     CompaniesModule,
     DebtsModule,
     NegotiationsModule,
+    ResendModule,
   ],
   controllers: [AppController],
   providers: [

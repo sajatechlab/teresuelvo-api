@@ -169,4 +169,75 @@ export class NegotiationsRepository {
     await this.repository.update(id, updateData)
     return this.findOne({ id })
   }
+
+  async getAdminMetrics(sixMonthsAgo: Date) {
+    const [statusCounts, savingsData, negotiationsOverTime] = await Promise.all(
+      [
+        this.repository
+          .createQueryBuilder('negotiation')
+          .select(['negotiation.status as "status"', 'COUNT(*) as count'])
+          .where('negotiation."deletedAt" IS NULL')
+          .groupBy('negotiation.status')
+          .getRawMany(),
+        this.repository
+          .createQueryBuilder('negotiation')
+          .leftJoin('negotiation.debt', 'debt')
+          .select([
+            'COUNT(*) as total',
+            'SUM(debt.amount - negotiation."amountNegotiated") as savings',
+            'SUM(debt.amount) as "originalAmount"',
+          ])
+          .where('negotiation.status = :status', { status: 'PAID' })
+          .getRawOne(),
+        this.repository
+          .createQueryBuilder('negotiation')
+          .leftJoin('negotiation.debt', 'debt')
+          .select([
+            "DATE_TRUNC('month', negotiation.createdAt) as date",
+            'COUNT(*) as count',
+            'SUM(debt.amount - negotiation.amountNegotiated) as "savingsAmount"',
+          ])
+          .where('negotiation.createdAt >= :sixMonthsAgo', { sixMonthsAgo })
+          .andWhere('negotiation.status = :status', { status: 'PAID' })
+          .groupBy('date')
+          .orderBy('date', 'ASC')
+          .getRawMany(),
+      ]
+    )
+
+    const statusMap = statusCounts.reduce((acc, { status, count }) => {
+      acc[status] = Number(count)
+      return acc
+    }, {})
+
+    const totalSavingsAmount = Number(savingsData?.savings || 0)
+    const totalOriginalAmount = Number(savingsData?.originalAmount || 0)
+    const successfulNegotiations = Number(statusMap['PAID'] || 0)
+
+    return {
+      totalNegotiations: statusCounts.reduce(
+        (sum, { count }) => sum + Number(count),
+        0
+      ),
+      activeNegotiations:
+        Number(statusMap['IN_NEGOTIATION'] || 0) +
+        Number(statusMap['PENDING_REVIEW'] || 0) +
+        Number(statusMap['PENDING_PAYMENT'] || 0),
+      successfulNegotiations,
+      rejectedNegotiations: Number(statusMap['REJECTED'] || 0),
+      pendingNegotiations: Number(statusMap['PENDING_REVIEW'] || 0),
+      totalSavingsAmount,
+      averageSavingsPercentage:
+        successfulNegotiations > 0
+          ? (totalSavingsAmount / totalOriginalAmount) * 100
+          : 0,
+      negotiationsOverTime: negotiationsOverTime.map(
+        ({ date, count, savingsAmount }) => ({
+          date: date.toISOString().slice(0, 7),
+          count: Number(count),
+          savingsAmount: Number(savingsAmount),
+        })
+      ),
+    }
+  }
 }

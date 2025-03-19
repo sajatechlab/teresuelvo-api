@@ -31,7 +31,7 @@ export class AuthController {
     const { access_token } = await this.authService.signup(createUserDto)
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      //secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })
@@ -48,7 +48,7 @@ export class AuthController {
     const { access_token } = await this.authService.login(req.user)
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      //secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })

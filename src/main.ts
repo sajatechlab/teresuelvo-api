@@ -13,19 +13,19 @@ async function bootstrap() {
     configService.get('FRONTEND_URL'),
     configService.get('FRONTEND_URL_2'),
   ]
-  //app.enableCors()
-  app.enableCors({
-    origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  })
+  app.enableCors()
+  // app.enableCors({
+  //   origin: (origin, callback) => {
+  //     if (allowedOrigins.includes(origin) || !origin) {
+  //       callback(null, true)
+  //     } else {
+  //       callback(new Error('Not allowed by CORS'))
+  //     }
+  //   },
+  //   credentials: true,
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  //   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  // })
   // Enable cookie parser
   app.use(cookieParser())
 

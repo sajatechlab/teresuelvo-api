@@ -49,6 +49,8 @@ export class AuthController {
     const { access_token } = await this.authService.login(req.user)
     response.cookie('jwt', access_token, {
       httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     })
     return { message: 'Successfully logged in', isAdmin: req.user.isAdmin }
   }

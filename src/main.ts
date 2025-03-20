@@ -9,11 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const configService = app.get(ConfigService)
   // Enable CORS with credentials
-  const whitelist = [
-    'https://teresuelvo.com.co',
-    'https://www.teresuelvo.com.co',
-    'http://localhost:3000',
-  ]
+  const whitelist = [process.env.FRONTEND_URL, process.env.FRONTEND_URL_2]
 
   app.enableCors({
     origin: function (origin, callback) {

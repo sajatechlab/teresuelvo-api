@@ -13,7 +13,12 @@ async function bootstrap() {
     configService.get('FRONTEND_URL'),
     configService.get('FRONTEND_URL_2'),
   ]
-  app.enableCors()
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
   // app.enableCors({
   //   origin: (origin, callback) => {
   //     if (allowedOrigins.includes(origin) || !origin) {

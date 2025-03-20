@@ -27,14 +27,17 @@ export class AuthController {
   ) {}
 
   private getCookieOptions(): CookieOptions {
+    const isProduction = this.configService.get('NODE_ENV') === 'production'
+
     return {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
-      domain: '.teresuelvo.com.co', // Note the leading dot
+      sameSite: 'none',
+      domain: isProduction ? '.teresuelvo.com.co' : undefined,
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    }
+      maxAge: 24 * 60 * 60 * 1000, // 1 day,
+      partitioned: true, // Add this for Safari 17+ (Privacy Preserving Ad Attribution)
+    } as CookieOptions // Type assertion to handle 'partitioned'
   }
 
   @Public()

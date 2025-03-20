@@ -12,19 +12,15 @@ async function bootstrap() {
   const whitelist = [process.env.FRONTEND_URL, process.env.FRONTEND_URL_2]
 
   app.enableCors({
-    origin: function (origin, callback) {
-      console.log('Request from origin:', origin)
-
-      if (!origin || whitelist.indexOf(origin) !== -1) {
-        callback(null, true)
-      } else {
-        console.log('Blocked origin:', origin)
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
+    origin: [
+      'https://teresuelvo.com.co',
+      'https://www.teresuelvo.com.co',
+      'http://localhost:3000',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['Set-Cookie', '*'],
     preflightContinue: false,
     optionsSuccessStatus: 204,
   })
@@ -32,7 +28,14 @@ async function bootstrap() {
   // Add this before app.listen
   app.use((req, res, next) => {
     const origin = req.headers.origin
-    if (origin && whitelist.indexOf(origin) !== -1) {
+    if (
+      origin &&
+      [
+        'https://teresuelvo.com.co',
+        'https://www.teresuelvo.com.co',
+        'http://localhost:3000',
+      ].indexOf(origin) !== -1
+    ) {
       res.setHeader('Access-Control-Allow-Origin', origin)
       res.setHeader('Access-Control-Allow-Credentials', 'true')
       res.setHeader(

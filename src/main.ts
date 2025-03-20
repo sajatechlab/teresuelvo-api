@@ -33,18 +33,18 @@ async function bootstrap() {
   const allowedOrigins = [
     configService.get('FRONTEND_URL'),
     configService.get('FRONTEND_URL_2'),
+    'https://teresuelvo.com.co',
+    'https://www.teresuelvo.com.co',
     'http://localhost:3000',
-  ]
+  ].filter(Boolean)
+
+  console.log('Allowed Origins:', allowedOrigins)
+
   app.enableCors({
-    origin: (origin, callback) => {
-      console.log('origin', origin)
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 
   const port = process.env.PORT || 3000

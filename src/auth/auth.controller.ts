@@ -26,28 +26,6 @@ export class AuthController {
     private configService: ConfigService
   ) {}
 
-  private getCookieOptions(): CookieOptions {
-    const isProduction = this.configService.get('NODE_ENV') === 'production'
-    const domain =
-      this.configService.get('COOKIE_DOMAIN') || 'teresuelvo.com.co'
-
-    console.log('Cookie Settings:', {
-      isProduction,
-      domain,
-      secure: true,
-      sameSite: 'none',
-    })
-
-    return {
-      httpOnly: true,
-      secure: true, // Always use secure in production
-      sameSite: 'none' as const,
-      //domain: isProduction ? domain : undefined,
-      //path: '/',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    }
-  }
-
   @Public()
   @Post('signup')
   async signup(
@@ -55,7 +33,9 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ) {
     const { access_token } = await this.authService.signup(createUserDto)
-    response.cookie('jwt', access_token, this.getCookieOptions())
+    response.cookie('jwt', access_token, {
+      httpOnly: true,
+    })
     return { message: 'Successfully signed up' }
   }
 
@@ -67,13 +47,17 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ) {
     const { access_token } = await this.authService.login(req.user)
-    response.cookie('jwt', access_token, this.getCookieOptions())
+    response.cookie('jwt', access_token, {
+      httpOnly: true,
+    })
     return { message: 'Successfully logged in', isAdmin: req.user.isAdmin }
   }
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('jwt', this.getCookieOptions())
+    response.clearCookie('jwt', {
+      httpOnly: true,
+    })
     return { message: 'Successfully logged out' }
   }
 

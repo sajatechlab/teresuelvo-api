@@ -12,11 +12,7 @@ async function bootstrap() {
   const whitelist = [process.env.FRONTEND_URL, process.env.FRONTEND_URL_2]
 
   app.enableCors({
-    origin: [
-      'https://teresuelvo.com.co',
-      'https://www.teresuelvo.com.co',
-      'http://localhost:3000',
-    ],
+    origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_2],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],

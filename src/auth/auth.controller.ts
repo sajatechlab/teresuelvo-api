@@ -42,8 +42,8 @@ export class AuthController {
       httpOnly: true,
       secure: true, // Always use secure in production
       sameSite: 'none' as const,
-      domain: isProduction ? domain : undefined,
-      path: '/',
+      //domain: isProduction ? domain : undefined,
+      //path: '/',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     }
   }

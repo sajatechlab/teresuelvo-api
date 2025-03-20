@@ -26,6 +26,17 @@ export class AuthController {
     private configService: ConfigService
   ) {}
 
+  private getCookieOptions(): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      domain: '.teresuelvo.com.co', // Note the leading dot
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    }
+  }
+
   @Public()
   @Post('signup')
   async signup(
@@ -33,9 +44,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ) {
     const { access_token } = await this.authService.signup(createUserDto)
-    response.cookie('jwt', access_token, {
-      httpOnly: true,
-    })
+    response.cookie('jwt', access_token, this.getCookieOptions())
     return { message: 'Successfully signed up' }
   }
 
@@ -47,19 +56,13 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ) {
     const { access_token } = await this.authService.login(req.user)
-    response.cookie('jwt', access_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-    })
+    response.cookie('jwt', access_token, this.getCookieOptions())
     return { message: 'Successfully logged in', isAdmin: req.user.isAdmin }
   }
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('jwt', {
-      httpOnly: true,
-    })
+    response.clearCookie('jwt', this.getCookieOptions())
     return { message: 'Successfully logged out' }
   }
 

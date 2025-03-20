@@ -9,7 +9,7 @@ import {
   Query,
   BadRequestException,
 } from '@nestjs/common'
-import { Response } from 'express'
+import { Response, CookieOptions } from 'express'
 import { AuthService } from './auth.service'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { CreateUserDto } from '../users/dto/create-user.dto'
@@ -17,10 +17,28 @@ import { Public } from './decorators/public.decorator'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 import { GetUser } from '@/common/decorators/user.decorator'
 import { User } from '@/users'
+import { ConfigService } from '@nestjs/config'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService
+  ) {}
+
+  private getCookieOptions(): CookieOptions {
+    const isProduction = this.configService.get('NODE_ENV') === 'production'
+    const domain = this.configService.get('COOKIE_DOMAIN')
+
+    return {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? ('none' as const) : ('lax' as const),
+      domain: isProduction ? domain : undefined,
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    }
+  }
 
   @Public()
   @Post('signup')
@@ -29,12 +47,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ) {
     const { access_token } = await this.authService.signup(createUserDto)
-    response.cookie('jwt', access_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    })
+    response.cookie('jwt', access_token, this.getCookieOptions())
     return { message: 'Successfully signed up' }
   }
 
@@ -46,22 +59,13 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ) {
     const { access_token } = await this.authService.login(req.user)
-    response.cookie('jwt', access_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    })
+    response.cookie('jwt', access_token, this.getCookieOptions())
     return { message: 'Successfully logged in', isAdmin: req.user.isAdmin }
   }
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('jwt', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-    })
+    response.clearCookie('jwt', this.getCookieOptions())
     return { message: 'Successfully logged out' }
   }
 

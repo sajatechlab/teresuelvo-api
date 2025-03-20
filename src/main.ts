@@ -9,26 +9,48 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const configService = app.get(ConfigService)
   // Enable CORS with credentials
-  const allowedOrigins = [
-    configService.get('FRONTEND_URL'),
-    configService.get('FRONTEND_URL_2'),
+  const whitelist = [
+    'https://teresuelvo.com.co',
+    'https://www.teresuelvo.com.co',
+    'http://localhost:3000',
   ]
+
   app.enableCors({
-    origin: true,
+    origin: function (origin, callback) {
+      console.log('Request from origin:', origin)
+
+      if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        console.log('Blocked origin:', origin)
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
-  // app.enableCors({
-  //   origin: (origin, callback) => {
-  //     if (allowedOrigins.includes(origin) || !origin) {
-  //       callback(null, true)
-  //     } else {
-  //       callback(new Error('Not allowed by CORS'))
-  //     }
-  //   },
-  //   credentials: true,
-  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  //   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  // })
+
+  // Add this before app.listen
+  app.use((req, res, next) => {
+    const origin = req.headers.origin
+    if (origin && whitelist.indexOf(origin) !== -1) {
+      res.setHeader('Access-Control-Allow-Origin', origin)
+      res.setHeader('Access-Control-Allow-Credentials', 'true')
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'
+      )
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Accept, Authorization'
+      )
+    }
+    next()
+  })
+
   // Enable cookie parser
   app.use(cookieParser())
 

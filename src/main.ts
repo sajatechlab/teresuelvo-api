@@ -30,18 +30,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document)
 
   // Enable CORS with credentials
-  const allowedOrigins = [
-    configService.get('FRONTEND_URL'),
-    configService.get('FRONTEND_URL_2'),
-    'https://teresuelvo.com.co',
-    'https://www.teresuelvo.com.co',
-    'http://localhost:3000',
-  ].filter(Boolean)
-
-  console.log('Allowed Origins:', allowedOrigins)
-
   app.enableCors({
-    origin: allowedOrigins,
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],

@@ -28,12 +28,20 @@ export class AuthController {
 
   private getCookieOptions(): CookieOptions {
     const isProduction = this.configService.get('NODE_ENV') === 'production'
-    const domain = this.configService.get('COOKIE_DOMAIN')
+    const domain =
+      this.configService.get('COOKIE_DOMAIN') || 'teresuelvo.com.co'
+
+    console.log('Cookie Settings:', {
+      isProduction,
+      domain,
+      secure: true,
+      sameSite: 'none',
+    })
 
     return {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? ('none' as const) : ('lax' as const),
+      secure: true, // Always use secure in production
+      sameSite: 'none' as const,
       domain: isProduction ? domain : undefined,
       path: '/',
       maxAge: 24 * 60 * 60 * 1000, // 1 day

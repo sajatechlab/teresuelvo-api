@@ -32,7 +32,7 @@ async function bootstrap() {
   // Enable CORS with credentials
   const allowedOrigins = [
     configService.get('FRONTEND_URL'),
-    configService.get('FRONTEND_URL_2 '),
+    configService.get('FRONTEND_URL_2'),
     'http://localhost:3000',
   ]
   app.enableCors({

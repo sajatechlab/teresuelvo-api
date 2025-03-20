@@ -121,6 +121,7 @@ export class DebtsRepository {
           'SUM(debt.amount) as amount',
         ])
         .where('debt.deletedAt IS NULL')
+        .andWhere('debt.userId = :userId', { userId })
         .groupBy('debt.type')
         .addGroupBy('debt."otherType"')
         .getRawMany(),
